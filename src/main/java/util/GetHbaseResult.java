@@ -4,7 +4,7 @@ package util;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.filter.*;
+
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
@@ -25,13 +25,16 @@ public class GetHbaseResult {
 
 
 
+
+
+
     /**
      * initialization hbase before operating files
      */
     private void initHbase(){
         // initialize configuration and connection
         configurationHbase = HBaseConfiguration.create();
-        configurationHbase.set("hbase.zookeeper.quorum", "10.0.0.51");
+        configurationHbase.set("hbase.zookeeper.quorum", "10.0.0.52");
         try {
             connectionHbase = ConnectionFactory.createConnection(configurationHbase);
         } catch (IOException e) {
@@ -55,15 +58,16 @@ public class GetHbaseResult {
             e.printStackTrace();
         }
 
-        //accurate match
-        deviceId = deviceId + "(@_@)";
-
-        //set filter to match the wanted device
-        Filter filter1 = new PrefixFilter(Bytes.toBytes(deviceId));
 
         //initialization a scan object
         Scan scan = new Scan();
-        scan.setFilter(filter1);
+
+        //set the number of row
+        scan.setMaxResultSize(1);
+
+        //filter rows
+        scan.setStartRow(Bytes.toBytes(deviceId));
+        scan.setStopRow(Bytes.toBytes(deviceId));
 
         //keep the latest data at the top
         scan.setReversed(true);
